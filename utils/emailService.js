@@ -1124,6 +1124,182 @@ export const sendLeaveReminderEmailToHR = async (employeeData, leaveData, hrData
     }
 };
 
+// // 2. LEAVE APPLICATION EMAIL TO HR
+// export const sendLeaveApplicationEmailToHR = async (employeeData, leaveData, hrData) => {
+//     try {
+//         const sendSmtpEmail = new Brevo.SendSmtpEmail();
+
+//         sendSmtpEmail.subject = `New Leave Application - ${employeeData.name} (${leaveData.leave_name})`;
+//         sendSmtpEmail.to = [{ email: hrData.email, name: hrData.name }];
+//         sendSmtpEmail.sender = { 
+//             email: process.env.SENDER_EMAIL || 'noreply@yourcompany.com', 
+//             name: 'HR Management System' 
+//         };
+        
+//         sendSmtpEmail.htmlContent = `
+//             <!DOCTYPE html>
+//             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+//             <head>
+//                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+//                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//                 <!--[if gte mso 9]>
+//                 <xml>
+//                     <o:OfficeDocumentSettings>
+//                         <o:AllowPNG/>
+//                         <o:PixelsPerInch>96</o:PixelsPerInch>
+//                     </o:OfficeDocumentSettings>
+//                 </xml>
+//                 <![endif]-->
+//             </head>
+//             <body style="margin: 0; padding: 0;">
+//                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
+                    
+//                     <!-- Modern Header with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 60px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
+//                         <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">NEW APPLICATION</h1>
+//                         <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Leave Approval Required</p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                     <!-- Main Content Area -->
+//                     <div style="padding: 50px 45px; background: #ffffff;">
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${hrData.name}</strong>,</p>
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
+//                             A new leave application has been submitted and requires your review.
+//                         </p>
+
+//                         <!-- Employee Details -->
+//                         <div style="margin: 40px 0;">
+//                             <h3 style="color: #0a0a0a; margin: 0 0 24px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Employee Details</h3>
+                            
+//                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
+//                                 <tr>
+//                                     <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0090ff; vertical-align: top;">
+//                                         <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Employee Name</p>
+//                                         <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.name}</p>
+//                                     </td>
+//                                 </tr>
+//                             </table>
+
+//                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
+//                                 <tr>
+//                                     <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #00d4ff; vertical-align: top;">
+//                                         <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Employee ID</p>
+//                                         <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.employee_id}</p>
+//                                     </td>
+//                                 </tr>
+//                             </table>
+
+//                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
+//                                 <tr>
+//                                     <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0051ff; vertical-align: top;">
+//                                         <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Department</p>
+//                                         <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.department_name || 'N/A'}</p>
+//                                     </td>
+//                                 </tr>
+//                             </table>
+
+//                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
+//                                 <tr>
+//                                     <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0090ff; vertical-align: top;">
+//                                         <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Designation</p>
+//                                         <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.designation || 'N/A'}</p>
+//                                     </td>
+//                                 </tr>
+//                             </table>
+//                         </div>
+
+//                         <!-- Leave Details -->
+//                         <div style="margin: 50px 0;">
+//                             <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
+                            
+//                             <div style="margin-bottom: 24px; border: 2px solid #0a0a0a; padding: 32px; position: relative;">
+//                                 <div style="width: 80px; height: 4px; background: #00d4ff; margin: 0 0 20px 0;"></div>
+                                
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Leave Type:</strong> ${leaveData.leave_name}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Number of Days:</strong> ${leaveData.number_of_days}
+//                                 </p>
+//                                 ${leaveData.is_half_day ? '<p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;"><strong>Half Day:</strong> Yes</p>' : ''}
+//                                 ${leaveData.od_start_time && leaveData.od_end_time ? `
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>OD Time:</strong> ${leaveData.od_start_time} - ${leaveData.od_end_time} (${leaveData.od_hours} hours)
+//                                 </p>
+//                                 ` : ''}
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Reason:</strong> ${leaveData.reason}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Applied On:</strong> ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}
+//                                 </p>
+//                             </div>
+//                         </div>
+                        
+//                         <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
+//                             Please login to the HR Management System to approve or reject this leave application.
+//                         </p>
+
+//                     </div>
+
+//                     <!-- Modern Footer with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 28px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
+//                         <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
+//                         <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
+//                             &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+//                         </p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                 </div>
+//             </body>
+//             </html>
+//         `;
+
+//         const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+//         console.log('Leave application email sent to HR successfully:', result);
+//         return { success: true, messageId: result.messageId };
+//     } catch (error) {
+//         console.error('Error sending leave application email to HR:', error);
+//         return { success: false, error: error.message };
+//     }
+// };
+
 // 2. LEAVE APPLICATION EMAIL TO HR
 export const sendLeaveApplicationEmailToHR = async (employeeData, leaveData, hrData) => {
     try {
@@ -1137,156 +1313,281 @@ export const sendLeaveApplicationEmailToHR = async (employeeData, leaveData, hrD
         };
         
         sendSmtpEmail.htmlContent = `
-            <!DOCTYPE html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <!--[if gte mso 9]>
-                <xml>
-                    <o:OfficeDocumentSettings>
-                        <o:AllowPNG/>
-                        <o:PixelsPerInch>96</o:PixelsPerInch>
-                    </o:OfficeDocumentSettings>
-                </xml>
+                <title>New Leave Application</title>
+                <!--[if mso]>
+                <style type="text/css">
+                    body, table, td {font-family: Arial, sans-serif !important;}
+                </style>
                 <![endif]-->
             </head>
-            <body style="margin: 0; padding: 0;">
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
-                    
-                    <!-- Modern Header with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 60px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
-                        <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">NEW APPLICATION</h1>
-                        <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Leave Approval Required</p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
-
-                    <!-- Main Content Area -->
-                    <div style="padding: 50px 45px; background: #ffffff;">
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${hrData.name}</strong>,</p>
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
-                            A new leave application has been submitted and requires your review.
-                        </p>
-
-                        <!-- Employee Details -->
-                        <div style="margin: 40px 0;">
-                            <h3 style="color: #0a0a0a; margin: 0 0 24px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Employee Details</h3>
-                            
-                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0090ff; vertical-align: top;">
-                                        <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Employee Name</p>
-                                        <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.name}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #00d4ff; vertical-align: top;">
-                                        <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Employee ID</p>
-                                        <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.employee_id}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0051ff; vertical-align: top;">
-                                        <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Department</p>
-                                        <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.department_name || 'N/A'}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
-                                <tr>
-                                    <td style="padding: 20px; background: #f8f8f8; border-left: 4px solid #0090ff; vertical-align: top;">
-                                        <p style="color: #0a0a0a; margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Designation</p>
-                                        <p style="color: #4a4a4a; margin: 0; font-size: 14px; line-height: 1.6;">${employeeData.designation || 'N/A'}</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- Leave Details -->
-                        <div style="margin: 50px 0;">
-                            <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
-                            
-                            <div style="margin-bottom: 24px; border: 2px solid #0a0a0a; padding: 32px; position: relative;">
-                                <div style="width: 80px; height: 4px; background: #00d4ff; margin: 0 0 20px 0;"></div>
+            <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                <!-- Wrapper Table -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+                    <tr>
+                        <td align="center" style="padding: 40px 20px;">
+                            <!-- Main Container -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; max-width: 600px;">
                                 
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Leave Type:</strong> ${leaveData.leave_name}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Number of Days:</strong> ${leaveData.number_of_days}
-                                </p>
-                                ${leaveData.is_half_day ? '<p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;"><strong>Half Day:</strong> Yes</p>' : ''}
-                                ${leaveData.od_start_time && leaveData.od_end_time ? `
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>OD Time:</strong> ${leaveData.od_start_time} - ${leaveData.od_end_time} (${leaveData.od_hours} hours)
-                                </p>
-                                ` : ''}
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Reason:</strong> ${leaveData.reason}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
-                                    <strong>Applied On:</strong> ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
-                            Please login to the HR Management System to approve or reject this leave application.
-                        </p>
+                                <!-- Header Section -->
+                                <tr>
+                                    <td align="center" style="background-color: #1e3a8a; padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <h1 style="margin: 0; padding: 0; color: #ffffff; font-family: Arial, sans-serif; font-size: 28px; font-weight: bold; line-height: 1.2;">
+                                                        New Leave Application
+                                                    </h1>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="padding-top: 12px;">
+                                                    <p style="margin: 0; padding: 0; color: #93c5fd; font-family: Arial, sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">
+                                                        Requires Your Approval
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
 
-                    </div>
+                                <!-- Content Section -->
+                                <tr>
+                                    <td style="padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            
+                                            <!-- Greeting -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Dear <strong>${hrData.name}</strong>,
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                    <!-- Modern Footer with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 28px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
-                        <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
-                        <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
-                            &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
-                        </p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
+                                            <tr>
+                                                <td style="padding-bottom: 30px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        A new leave application has been submitted by <strong>${employeeData.name}</strong> and requires your review and approval.
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                </div>
+                                            <!-- Employee Details Heading -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px; border-bottom: 2px solid #1e3a8a;">
+                                                    <h2 style="margin: 0; padding: 0; color: #1e3a8a; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                        Employee Details
+                                                    </h2>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Employee Name -->
+                                            <tr>
+                                                <td style="padding-top: 15px; padding-bottom: 15px;">
+                                                    <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f9fafb; border-left: 4px solid #3b82f6;">
+                                                        <tr>
+                                                            <td>
+                                                                <p style="margin: 0; padding: 0; color: #6b7280; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                                    Employee Name
+                                                                </p>
+                                                                <p style="margin: 8px 0 0 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+                                                                    ${employeeData.name}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Employee ID -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px;">
+                                                    <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f9fafb; border-left: 4px solid #3b82f6;">
+                                                        <tr>
+                                                            <td>
+                                                                <p style="margin: 0; padding: 0; color: #6b7280; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                                    Employee ID
+                                                                </p>
+                                                                <p style="margin: 8px 0 0 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+                                                                    ${employeeData.employee_id}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Department -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px;">
+                                                    <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f9fafb; border-left: 4px solid #3b82f6;">
+                                                        <tr>
+                                                            <td>
+                                                                <p style="margin: 0; padding: 0; color: #6b7280; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                                    Department
+                                                                </p>
+                                                                <p style="margin: 8px 0 0 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+                                                                    ${employeeData.department_name || 'N/A'}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Designation -->
+                                            <tr>
+                                                <td style="padding-bottom: 30px;">
+                                                    <table border="0" cellpadding="12" cellspacing="0" width="100%" style="background-color: #f9fafb; border-left: 4px solid #3b82f6;">
+                                                        <tr>
+                                                            <td>
+                                                                <p style="margin: 0; padding: 0; color: #6b7280; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                                    Designation
+                                                                </p>
+                                                                <p style="margin: 8px 0 0 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+                                                                    ${employeeData.designation || 'N/A'}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Leave Details Heading -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px; border-bottom: 2px solid #1e3a8a;">
+                                                    <h2 style="margin: 0; padding: 0; color: #1e3a8a; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                        Leave Details
+                                                    </h2>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Leave Details Box -->
+                                            <tr>
+                                                <td style="padding-top: 20px; padding-bottom: 30px;">
+                                                    <table border="0" cellpadding="20" cellspacing="0" width="100%" style="background-color: #eff6ff; border: 2px solid #3b82f6;">
+                                                        <tr>
+                                                            <td>
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Leave Type:</strong> ${leaveData.leave_name}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Number of Days:</strong> ${leaveData.number_of_days}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ${leaveData.is_half_day ? `
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Half Day:</strong> Yes
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ` : ''}
+                                                                    ${leaveData.od_start_time && leaveData.od_end_time ? `
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>OD Time:</strong> ${leaveData.od_start_time} - ${leaveData.od_end_time} (${leaveData.od_hours} hours)
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ` : ''}
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Reason:</strong> ${leaveData.reason}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Applied On:</strong> ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Action Text -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Please login to the HR Management System to review and process this leave application.
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Closing -->
+                                            <tr>
+                                                <td style="padding-top: 10px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Best regards,<br>
+                                                        <strong>HR Department</strong>
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Footer Section -->
+                                <tr>
+                                    <td align="center" style="background-color: #1e3a8a; padding: 30px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <p style="margin: 0; padding: 0 0 8px 0; color: #cbd5e1; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5;">
+                                                        This is an automated notification. Please do not reply to this email.
+                                                    </p>
+                                                    <p style="margin: 0; padding: 0; color: #94a3b8; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.5;">
+                                                        &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                            </table>
+                            <!-- End Main Container -->
+                        </td>
+                    </tr>
+                </table>
+                <!-- End Wrapper Table -->
             </body>
             </html>
         `;
@@ -1300,7 +1601,141 @@ export const sendLeaveApplicationEmailToHR = async (employeeData, leaveData, hrD
     }
 };
 
-// 3. LEAVE APPROVAL EMAIL
+
+// // 3. LEAVE APPROVAL EMAIL
+// export const sendLeaveApprovalEmail = async (employeeData, leaveData, approverData) => {
+//     try {
+//         const sendSmtpEmail = new Brevo.SendSmtpEmail();
+
+//         sendSmtpEmail.subject = `Leave Approved - ${leaveData.leave_name}`;
+//         sendSmtpEmail.to = [{ email: employeeData.email, name: employeeData.name }];
+//         sendSmtpEmail.sender = { 
+//             email: process.env.SENDER_EMAIL || 'noreply@yourcompany.com', 
+//             name: 'HR Management System' 
+//         };
+        
+//         sendSmtpEmail.htmlContent = `
+//             <!DOCTYPE html>
+//             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+//             <head>
+//                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+//                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//                 <!--[if gte mso 9]>
+//                 <xml>
+//                     <o:OfficeDocumentSettings>
+//                         <o:AllowPNG/>
+//                         <o:PixelsPerInch>96</o:PixelsPerInch>
+//                     </o:OfficeDocumentSettings>
+//                 </xml>
+//                 <![endif]-->
+//             </head>
+//             <body style="margin: 0; padding: 0;">
+//                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
+                    
+//                     <!-- Modern Header with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 60px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
+//                         <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">✅ APPROVED</h1>
+//                         <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Your Leave Has Been Approved</p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                     <!-- Main Content Area -->
+//                     <div style="padding: 50px 45px; background: #ffffff;">
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${employeeData.name}</strong>,</p>
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
+//                             Good news! Your leave application has been <strong style="color: #52c41a;">APPROVED</strong>.
+//                         </p>
+
+//                         <!-- Leave Details -->
+//                         <div style="margin: 50px 0;">
+//                             <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
+                            
+//                             <div style="margin-bottom: 24px; border: 2px solid #52c41a; padding: 32px; position: relative; background: #f6ffed;">
+//                                 <div style="width: 80px; height: 4px; background: #52c41a; margin: 0 0 20px 0;"></div>
+                                
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Leave Type:</strong> ${leaveData.leave_name}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Number of Days:</strong> ${leaveData.number_of_days}
+//                                 </p>
+//                                 ${leaveData.is_half_day ? '<p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;"><strong>Half Day:</strong> Yes</p>' : ''}
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Approved By:</strong> ${approverData.name}
+//                                 </p>
+//                                 ${leaveData.approver_comments ? `
+//                                 <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Comments:</strong> ${leaveData.approver_comments}
+//                                 </p>
+//                                 ` : ''}
+//                             </div>
+//                         </div>
+                        
+//                         <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
+//                             Your leave has been approved and the balance has been updated accordingly. If you have any questions, please contact HR.
+//                         </p>
+
+//                     </div>
+
+//                     <!-- Modern Footer with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 28px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
+//                         <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
+//                         <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
+//                             &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+//                         </p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                 </div>
+//             </body>
+//             </html>
+//         `;
+
+//         const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+//         console.log('Approval email sent successfully:', result);
+//         return { success: true, messageId: result.messageId };
+//     } catch (error) {
+//         console.error('Error sending approval email:', error);
+//         return { success: false, error: error.message };
+//     }
+// };
+
+
+
 export const sendLeaveApprovalEmail = async (employeeData, leaveData, approverData) => {
     try {
         const sendSmtpEmail = new Brevo.SendSmtpEmail();
@@ -1313,112 +1748,193 @@ export const sendLeaveApprovalEmail = async (employeeData, leaveData, approverDa
         };
         
         sendSmtpEmail.htmlContent = `
-            <!DOCTYPE html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <!--[if gte mso 9]>
-                <xml>
-                    <o:OfficeDocumentSettings>
-                        <o:AllowPNG/>
-                        <o:PixelsPerInch>96</o:PixelsPerInch>
-                    </o:OfficeDocumentSettings>
-                </xml>
+                <title>Leave Approved</title>
+                <!--[if mso]>
+                <style type="text/css">
+                    body, table, td {font-family: Arial, sans-serif !important;}
+                </style>
                 <![endif]-->
             </head>
-            <body style="margin: 0; padding: 0;">
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
-                    
-                    <!-- Modern Header with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 60px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
-                        <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">✅ APPROVED</h1>
-                        <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Your Leave Has Been Approved</p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
-
-                    <!-- Main Content Area -->
-                    <div style="padding: 50px 45px; background: #ffffff;">
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${employeeData.name}</strong>,</p>
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
-                            Good news! Your leave application has been <strong style="color: #52c41a;">APPROVED</strong>.
-                        </p>
-
-                        <!-- Leave Details -->
-                        <div style="margin: 50px 0;">
-                            <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
-                            
-                            <div style="margin-bottom: 24px; border: 2px solid #52c41a; padding: 32px; position: relative; background: #f6ffed;">
-                                <div style="width: 80px; height: 4px; background: #52c41a; margin: 0 0 20px 0;"></div>
+            <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                <!-- Wrapper Table -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+                    <tr>
+                        <td align="center" style="padding: 40px 20px;">
+                            <!-- Main Container -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; max-width: 600px;">
                                 
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Leave Type:</strong> ${leaveData.leave_name}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Number of Days:</strong> ${leaveData.number_of_days}
-                                </p>
-                                ${leaveData.is_half_day ? '<p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;"><strong>Half Day:</strong> Yes</p>' : ''}
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Approved By:</strong> ${approverData.name}
-                                </p>
-                                ${leaveData.approver_comments ? `
-                                <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
-                                    <strong>Comments:</strong> ${leaveData.approver_comments}
-                                </p>
-                                ` : ''}
-                            </div>
-                        </div>
-                        
-                        <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
-                            Your leave has been approved and the balance has been updated accordingly. If you have any questions, please contact HR.
-                        </p>
+                                <!-- Header Section - Green for Approval -->
+                                <tr>
+                                    <td align="center" style="background-color: #065f46; padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <h1 style="margin: 0; padding: 0; color: #ffffff; font-family: Arial, sans-serif; font-size: 28px; font-weight: bold; line-height: 1.2;">
+                                                        ✓ APPROVED
+                                                    </h1>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="padding-top: 12px;">
+                                                    <p style="margin: 0; padding: 0; color: #86efac; font-family: Arial, sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">
+                                                        Your Leave Request
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
 
-                    </div>
+                                <!-- Content Section -->
+                                <tr>
+                                    <td style="padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            
+                                            <!-- Greeting -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Dear <strong>${employeeData.name}</strong>,
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                    <!-- Modern Footer with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 28px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
-                        <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
-                        <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
-                            &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
-                        </p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
+                                            <tr>
+                                                <td style="padding-bottom: 30px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Good news! Your leave application has been <strong style="color: #059669;">APPROVED</strong>.
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                </div>
+                                            <!-- Leave Details Heading -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px; border-bottom: 2px solid #059669;">
+                                                    <h2 style="margin: 0; padding: 0; color: #059669; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                        Leave Details
+                                                    </h2>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Leave Details Box -->
+                                            <tr>
+                                                <td style="padding-top: 20px; padding-bottom: 30px;">
+                                                    <table border="0" cellpadding="20" cellspacing="0" width="100%" style="background-color: #f0fdf4; border: 2px solid #059669;">
+                                                        <tr>
+                                                            <td>
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Leave Type:</strong> ${leaveData.leave_name}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Number of Days:</strong> ${leaveData.number_of_days}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ${leaveData.is_half_day ? `
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Half Day:</strong> Yes
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ` : ''}
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Approved By:</strong> ${approverData.name}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ${leaveData.approver_comments ? `
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Comments:</strong> ${leaveData.approver_comments}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    ` : ''}
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Action Text -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Your leave has been approved and the balance has been updated accordingly. If you have any questions, please contact HR.
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Closing -->
+                                            <tr>
+                                                <td style="padding-top: 10px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Best regards,<br>
+                                                        <strong>HR Department</strong>
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Footer Section -->
+                                <tr>
+                                    <td align="center" style="background-color: #065f46; padding: 30px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <p style="margin: 0; padding: 0 0 8px 0; color: #cbd5e1; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5;">
+                                                        This is an automated notification. Please do not reply to this email.
+                                                    </p>
+                                                    <p style="margin: 0; padding: 0; color: #94a3b8; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.5;">
+                                                        &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                            </table>
+                            <!-- End Main Container -->
+                        </td>
+                    </tr>
+                </table>
+                <!-- End Wrapper Table -->
             </body>
             </html>
         `;
@@ -1432,7 +1948,155 @@ export const sendLeaveApprovalEmail = async (employeeData, leaveData, approverDa
     }
 };
 
-// 4. LEAVE REJECTION EMAIL
+
+
+// // 4. LEAVE REJECTION EMAIL
+// export const sendLeaveRejectionEmail = async (employeeData, leaveData, rejectorData) => {
+//     try {
+//         const sendSmtpEmail = new Brevo.SendSmtpEmail();
+
+//         sendSmtpEmail.subject = `Leave Rejected - ${leaveData.leave_name}`;
+//         sendSmtpEmail.to = [{ email: employeeData.email, name: employeeData.name }];
+//         sendSmtpEmail.sender = { 
+//             email: process.env.SENDER_EMAIL || 'noreply@yourcompany.com', 
+//             name: 'HR Management System' 
+//         };
+        
+//         sendSmtpEmail.htmlContent = `
+//             <!DOCTYPE html>
+//             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+//             <head>
+//                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+//                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//                 <!--[if gte mso 9]>
+//                 <xml>
+//                     <o:OfficeDocumentSettings>
+//                         <o:AllowPNG/>
+//                         <o:PixelsPerInch>96</o:PixelsPerInch>
+//                     </o:OfficeDocumentSettings>
+//                 </xml>
+//                 <![endif]-->
+//             </head>
+//             <body style="margin: 0; padding: 0;">
+//                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
+                    
+//                     <!-- Modern Header with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 60px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
+//                         <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">❌ REJECTED</h1>
+//                         <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Leave Application Status</p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                     <!-- Main Content Area -->
+//                     <div style="padding: 50px 45px; background: #ffffff;">
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${employeeData.name}</strong>,</p>
+                        
+//                         <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
+//                             We regret to inform you that your leave application has been <strong style="color: #ff4d4f;">REJECTED</strong>.
+//                         </p>
+
+//                         <!-- Leave Details -->
+//                         <div style="margin: 50px 0;">
+//                             <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
+                            
+//                             <div style="margin-bottom: 24px; border: 2px solid #ff4d4f; padding: 32px; position: relative; background: #fff1f0;">
+//                                 <div style="width: 80px; height: 4px; background: #ff4d4f; margin: 0 0 20px 0;"></div>
+                                
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Leave Type:</strong> ${leaveData.leave_name}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Number of Days:</strong> ${leaveData.number_of_days}
+//                                 </p>
+//                                 <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
+//                                     <strong>Rejected By:</strong> ${rejectorData.name}
+//                                 </p>
+//                             </div>
+//                         </div>
+                        
+//                         ${leaveData.rejection_reason ? `
+//                         <div style="margin: 50px 0; padding: 36px; background: #1a237e; position: relative;">
+//                             <!--[if gte mso 9]>
+//                             <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:590px;">
+//                                 <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                                 <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                                 <div style="padding: 36px;">
+//                             <![endif]-->
+                            
+//                             <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 0 24px 0;"></div>
+//                             <h3 style="color: #ffffff; margin: 0 0 24px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Rejection Reason</h3>
+//                             <p style="color: #00d4ff; margin: 0; font-size: 14px; line-height: 1.6;">${leaveData.rejection_reason}</p>
+                            
+//                             <!--[if gte mso 9]>
+//                                 </div>
+//                                 </v:textbox>
+//                             </v:rect>
+//                             <![endif]-->
+//                         </div>
+//                         ` : ''}
+                        
+//                         <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
+//                             If you have any questions regarding this rejection, please contact ${rejectorData.name} or the HR department.
+//                         </p>
+
+//                     </div>
+
+//                     <!-- Modern Footer with Blue Gradient -->
+//                     <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
+//                         <!--[if gte mso 9]>
+//                         <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
+//                             <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
+//                             <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+//                             <div style="padding: 28px 40px; text-align: center;">
+//                         <![endif]-->
+                        
+//                         <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
+//                         <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
+//                         <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
+//                             &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+//                         </p>
+                        
+//                         <!--[if gte mso 9]>
+//                             </div>
+//                             </v:textbox>
+//                         </v:rect>
+//                         <![endif]-->
+//                     </div>
+
+//                 </div>
+//             </body>
+//             </html>
+//         `;
+
+//         const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+//         console.log('Rejection email sent successfully:', result);
+//         return { success: true, messageId: result.messageId };
+//     } catch (error) {
+//         console.error('Error sending rejection email:', error);
+//         return { success: false, error: error.message };
+//     }
+// };
+
 export const sendLeaveRejectionEmail = async (employeeData, leaveData, rejectorData) => {
     try {
         const sendSmtpEmail = new Brevo.SendSmtpEmail();
@@ -1445,127 +2109,195 @@ export const sendLeaveRejectionEmail = async (employeeData, leaveData, rejectorD
         };
         
         sendSmtpEmail.htmlContent = `
-            <!DOCTYPE html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <!--[if gte mso 9]>
-                <xml>
-                    <o:OfficeDocumentSettings>
-                        <o:AllowPNG/>
-                        <o:PixelsPerInch>96</o:PixelsPerInch>
-                    </o:OfficeDocumentSettings>
-                </xml>
+                <title>Leave Rejected</title>
+                <!--[if mso]>
+                <style type="text/css">
+                    body, table, td {font-family: Arial, sans-serif !important;}
+                </style>
                 <![endif]-->
             </head>
-            <body style="margin: 0; padding: 0;">
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #ffffff;">
-                    
-                    <!-- Modern Header with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 60px 40px; text-align: center; position: relative;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:220px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 60px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 auto 30px;"></div>
-                        <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1.2;">❌ REJECTED</h1>
-                        <p style="color: #00d4ff; margin: 0; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; font-weight: 600;">Leave Application Status</p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
-
-                    <!-- Main Content Area -->
-                    <div style="padding: 50px 45px; background: #ffffff;">
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">Dear <strong>${employeeData.name}</strong>,</p>
-                        
-                        <p style="color: #1a1a1a; margin: 0 0 28px; line-height: 1.7; font-size: 16px;">
-                            We regret to inform you that your leave application has been <strong style="color: #ff4d4f;">REJECTED</strong>.
-                        </p>
-
-                        <!-- Leave Details -->
-                        <div style="margin: 50px 0;">
-                            <h3 style="color: #0a0a0a; margin: 0 0 30px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Leave Details</h3>
-                            
-                            <div style="margin-bottom: 24px; border: 2px solid #ff4d4f; padding: 32px; position: relative; background: #fff1f0;">
-                                <div style="width: 80px; height: 4px; background: #ff4d4f; margin: 0 0 20px 0;"></div>
+            <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                <!-- Wrapper Table -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+                    <tr>
+                        <td align="center" style="padding: 40px 20px;">
+                            <!-- Main Container -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; max-width: 600px;">
                                 
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Leave Type:</strong> ${leaveData.leave_name}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0 0 12px; font-size: 14px; line-height: 1.7;">
-                                    <strong>Number of Days:</strong> ${leaveData.number_of_days}
-                                </p>
-                                <p style="color: #1a1a1a; margin: 0; font-size: 14px; line-height: 1.7;">
-                                    <strong>Rejected By:</strong> ${rejectorData.name}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        ${leaveData.rejection_reason ? `
-                        <div style="margin: 50px 0; padding: 36px; background: #1a237e; position: relative;">
-                            <!--[if gte mso 9]>
-                            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:590px;">
-                                <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                                <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                                <div style="padding: 36px;">
-                            <![endif]-->
-                            
-                            <div style="width: 100px; height: 4px; background: #00d4ff; margin: 0 0 24px 0;"></div>
-                            <h3 style="color: #ffffff; margin: 0 0 24px; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Rejection Reason</h3>
-                            <p style="color: #00d4ff; margin: 0; font-size: 14px; line-height: 1.6;">${leaveData.rejection_reason}</p>
-                            
-                            <!--[if gte mso 9]>
-                                </div>
-                                </v:textbox>
-                            </v:rect>
-                            <![endif]-->
-                        </div>
-                        ` : ''}
-                        
-                        <p style="color: #1a1a1a; margin: 40px 0 32px; line-height: 1.7; font-size: 16px;">
-                            If you have any questions regarding this rejection, please contact ${rejectorData.name} or the HR department.
-                        </p>
+                                <!-- Header Section - Red for Rejection -->
+                                <tr>
+                                    <td align="center" style="background-color: #7f1d1d; padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <h1 style="margin: 0; padding: 0; color: #ffffff; font-family: Arial, sans-serif; font-size: 28px; font-weight: bold; line-height: 1.2;">
+                                                        ✕ REJECTED
+                                                    </h1>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" style="padding-top: 12px;">
+                                                    <p style="margin: 0; padding: 0; color: #fca5a5; font-family: Arial, sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">
+                                                        Leave Application Status
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
 
-                    </div>
+                                <!-- Content Section -->
+                                <tr>
+                                    <td style="padding: 40px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            
+                                            <!-- Greeting -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Dear <strong>${employeeData.name}</strong>,
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                    <!-- Modern Footer with Blue Gradient -->
-                    <div style="background: #1a237e; padding: 28px 40px; text-align: center;">
-                        <!--[if gte mso 9]>
-                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:680px; height:100px;">
-                            <v:fill type="gradient" color="#0a0a0a" color2="#0d47a1" angle="135" />
-                            <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-                            <div style="padding: 28px 40px; text-align: center;">
-                        <![endif]-->
-                        
-                        <div style="width: 60px; height: 2px; background: #00d4ff; margin: 0 auto 16px;"></div>
-                        <p style="color: #e0e0e0; font-size: 11px; margin: 0 0 8px; letter-spacing: 1px;">This is an automated email. Please do not reply to this message.</p>
-                        <p style="color: #999999; font-size: 11px; margin: 0; letter-spacing: 0.5px;">
-                            &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
-                        </p>
-                        
-                        <!--[if gte mso 9]>
-                            </div>
-                            </v:textbox>
-                        </v:rect>
-                        <![endif]-->
-                    </div>
+                                            <tr>
+                                                <td style="padding-bottom: 30px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        We regret to inform you that your leave application has been <strong style="color: #dc2626;">REJECTED</strong>.
+                                                    </p>
+                                                </td>
+                                            </tr>
 
-                </div>
+                                            <!-- Leave Details Heading -->
+                                            <tr>
+                                                <td style="padding-bottom: 15px; border-bottom: 2px solid #dc2626;">
+                                                    <h2 style="margin: 0; padding: 0; color: #dc2626; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                        Leave Details
+                                                    </h2>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Leave Details Box -->
+                                            <tr>
+                                                <td style="padding-top: 20px; padding-bottom: 30px;">
+                                                    <table border="0" cellpadding="20" cellspacing="0" width="100%" style="background-color: #fef2f2; border: 2px solid #dc2626;">
+                                                        <tr>
+                                                            <td>
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Leave Type:</strong> ${leaveData.leave_name}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>From Date:</strong> ${new Date(leaveData.from_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>To Date:</strong> ${new Date(leaveData.to_date).toLocaleDateString('en-GB')}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Number of Days:</strong> ${leaveData.number_of_days}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                                <strong>Rejected By:</strong> ${rejectorData.name}
+                                                                            </p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Rejection Reason Section -->
+                                            ${leaveData.rejection_reason ? `
+                                            <tr>
+                                                <td style="padding-bottom: 30px;">
+                                                    <table border="0" cellpadding="20" cellspacing="0" width="100%" style="background-color: #fef2f2; border-left: 4px solid #dc2626;">
+                                                        <tr>
+                                                            <td>
+                                                                <h3 style="margin: 0 0 12px 0; padding: 0; color: #dc2626; font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                                                                    Reason for Rejection
+                                                                </h3>
+                                                                <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6;">
+                                                                    ${leaveData.rejection_reason}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            ` : ''}
+
+                                            <!-- Action Text -->
+                                            <tr>
+                                                <td style="padding-bottom: 20px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        If you have any questions regarding this rejection, please contact <strong>${rejectorData.name}</strong> or the HR department.
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Closing -->
+                                            <tr>
+                                                <td style="padding-top: 10px;">
+                                                    <p style="margin: 0; padding: 0; color: #1f2937; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6;">
+                                                        Best regards,<br>
+                                                        <strong>HR Department</strong>
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Footer Section -->
+                                <tr>
+                                    <td align="center" style="background-color: #7f1d1d; padding: 30px 30px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <p style="margin: 0; padding: 0 0 8px 0; color: #cbd5e1; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5;">
+                                                        This is an automated notification. Please do not reply to this email.
+                                                    </p>
+                                                    <p style="margin: 0; padding: 0; color: #94a3b8; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.5;">
+                                                        &copy; ${new Date().getFullYear()} Sagous. All rights reserved.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                            </table>
+                            <!-- End Main Container -->
+                        </td>
+                    </tr>
+                </table>
+                <!-- End Wrapper Table -->
             </body>
             </html>
         `;
@@ -1578,6 +2310,7 @@ export const sendLeaveRejectionEmail = async (employeeData, leaveData, rejectorD
         return { success: false, error: error.message };
     }
 };
+
 
 // 5. LEAVE APPLICATION NOTIFICATION TO APPROVER
 export const sendLeaveApplicationNotification = async (approverData, employeeData, leaveData) => {
