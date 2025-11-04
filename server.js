@@ -319,6 +319,9 @@ import { getAllDepartments } from './controllers/departmentController.js';
 import logsRoutes from './routes/logs.js';
 import { initializeScheduledJobs } from './jobs/emailloginJobs.js';
 
+// ✅ ADD THIS IMPORT
+import { scheduleAttendanceSync } from './jobs/attendancecronJobs.js';
+
 dotenv.config();
 
 const app = express();
@@ -327,8 +330,8 @@ const app = express();
 // 1. Manual CORS Configuration - MUST BE FIRST
 // ============================================================
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://sagous.netlify.app');
-        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://sagous.netlify.app');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -357,11 +360,12 @@ app.use((req, res, next) => {
 });
 
 // ============================================================
-// 4. Initialize Cron Jobs
+// 4. DON'T Initialize Cron Jobs Here - MOVE TO SERVER START
 // ============================================================
-startLeaveBalanceCronJob();
-initializeScheduledJobs();
-console.log('🤖 Cron jobs started successfully\n');
+// ❌ REMOVE THESE FROM HERE
+// startLeaveBalanceCronJob();
+// initializeScheduledJobs();
+// console.log('🤖 Cron jobs started successfully\n');
 
 // ============================================================
 // 5. Routes - ALL ROUTES AFTER MIDDLEWARE
@@ -545,7 +549,6 @@ app.get('/status', (req, res) => {
   res.status(200).json({ status: 'alive', time: new Date() });
 });
 
-
 // 404 handler - MUST BE LAST
 app.use((req, res) => {
     res.status(404).json({
@@ -574,6 +577,33 @@ const startServer = async () => {
             console.log(`🌐 API URL: http://localhost:${PORT}/api`);
             console.log(`🗄️  Database: ${process.env.DB_NAME}`);
             console.log('='.repeat(50));
+            
+            // ✅ Initialize cron jobs AFTER server starts
+            console.log('\n' + '='.repeat(50));
+            console.log('🤖 INITIALIZING CRON JOBS...');
+            console.log('='.repeat(50));
+            
+            try {
+                console.log('\n1️⃣ Starting Leave Balance Cron...');
+                startLeaveBalanceCronJob();
+                console.log('✅ Leave balance cron initialized\n');
+                
+                
+                console.log('2️⃣ Starting Attendance Sync Cron...');
+                scheduleAttendanceSync();
+                console.log('✅ Attendance sync cron initialized\n');
+                
+                console.log('3️⃣ Starting Email Login Jobs...');
+                initializeScheduledJobs();
+                console.log('✅ Email login jobs initialized\n');
+                
+                console.log('='.repeat(50));
+                console.log('✅ ALL CRON JOBS STARTED SUCCESSFULLY');
+                console.log('='.repeat(50) + '\n');
+            } catch (cronError) {
+                console.error('❌ Cron initialization error:', cronError);
+                console.error('Stack:', cronError.stack);
+            }
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);
@@ -582,7 +612,6 @@ const startServer = async () => {
 };
 
 startServer();
-
 
 
 

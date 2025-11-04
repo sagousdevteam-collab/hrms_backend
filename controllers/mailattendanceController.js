@@ -46,25 +46,29 @@ const calculateBothTimes = (inLogs, outLogs) => {
     
     console.log(`      ✅ After cleaning: ${cleanedInLogs.length} IN, ${cleanedOutLogs.length} OUT`);
     
-    // Step 4: Calculate NET time by pairing cleaned IN-OUT
-    let netMinutes = 0;
-    const sessions = [];
-    const minLength = Math.min(cleanedInLogs.length, cleanedOutLogs.length);
+// Step 4: Calculate NET time by pairing cleaned IN-OUT
+let netMinutes = 0;
+const sessions = [];
+const minLength = Math.min(cleanedInLogs.length, cleanedOutLogs.length);
+
+for (let i = 0; i < minLength; i++) {
+    const inTime = cleanedInLogs[i].timestamp;
+    const outTime = cleanedOutLogs[i].timestamp;
     
-    for (let i = 0; i < minLength; i++) {
-        const inTime = cleanedInLogs[i].timestamp;
-        const outTime = cleanedOutLogs[i].timestamp;
-        const diffMinutes = outTime.diff(inTime, 'minutes');
+    // ✅ Use SECONDS for precision, then convert to minutes
+    const diffSeconds = outTime.diff(inTime, 'seconds');
+    
+    if (diffSeconds > 0) {
+        const diffMinutes = Math.round(diffSeconds / 60); // Round to nearest minute
+        netMinutes += diffMinutes;
         
-        if (diffMinutes > 0) {
-            netMinutes += diffMinutes;
-            sessions.push({
-                in: inTime.format('HH:mm'),
-                out: outTime.format('HH:mm'),
-                duration: `${Math.floor(diffMinutes / 60)}:${(diffMinutes % 60).toString().padStart(2, '0')}`
-            });
-        }
+        sessions.push({
+            in: inTime.format('HH:mm'),
+            out: outTime.format('HH:mm'),
+            duration: `${Math.floor(diffMinutes / 60)}:${(diffMinutes % 60).toString().padStart(2, '0')}`
+        });
     }
+}
     
     // Step 5: Calculate GROSS time (first IN to last OUT from cleaned data)
     let grossMinutes = 0;
