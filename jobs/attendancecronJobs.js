@@ -60,5 +60,5 @@ export const scheduleAttendanceSync = () => {
     console.log('✅ Production cron scheduled: 7:00 AM IST daily');
     console.log('═══════════════════════════════════════');
     
-    return { testTask, dailyTask };
+    return {  dailyTask };
 };
