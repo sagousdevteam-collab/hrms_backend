@@ -1860,7 +1860,23 @@ export const holdLeave = async (req, res) => {
 
 export const getLeaveBalance = async (req, res) => {
     try {
-        const employee_id = req.user.emp_id;
+        // Get employee_id from employees table (not user emp_id)
+        const userId = req.user.id; // From JWT token
+        
+        // First, get the employee ID from employees table
+        const [employeeData] = await pool.query(
+            `SELECT id FROM employees WHERE user_id = ?`,
+            [userId]
+        );
+        
+        if (employeeData.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee record not found'
+            });
+        }
+        
+        const employee_id = employeeData[0].id; // This is the ID in leave_balances table
         const today = moment();
 
         // Get current cycle
@@ -1882,6 +1898,18 @@ export const getLeaveBalance = async (req, res) => {
              ORDER BY lt.leave_code`,
             [employee_id, cycle_start]
         );
+
+        if (balances.length === 0) {
+            return res.json({
+                success: true,
+                data: [],
+                message: 'No leave balance available for current cycle',
+                current_cycle: {
+                    start: cycle_start,
+                    end: moment(cycle_start).add(1, 'month').date(24).format('YYYY-MM-DD')
+                }
+            });
+        }
 
         res.json({
             success: true,
@@ -2030,32 +2058,10 @@ export const migrateToLeavesCycles = async (req, res) => {
 // };
 
 
-export const creditMonthlyLeaves = async (req, res) => {
-    try {
-        const result = await creditMonthlyLeavesForAll();
-        
-        if (result.success) {
-            res.json({
-                success: true,
-                message: `Monthly leaves credited successfully! ${result.totalCredited} records created for ${result.employeesProcessed} employees.`,
-                data: result
-            });
-        } else {
-            res.status(500).json({
-                success: false,
-                message: 'Error crediting monthly leaves',
-                error: result.error
-            });
-        }
-    } catch (error) {
-        console.error('Manual credit error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error crediting monthly leaves',
-            error: error.message
-        });
-    }
-};
+
+
+
+
 
 
 
@@ -2086,6 +2092,34 @@ export const getAllLeaves = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching leaves',
+            error: error.message
+        });
+    }
+};
+
+
+export const creditMonthlyLeaves = async (req, res) => {
+    try {
+        const result = await creditMonthlyLeavesForAll();
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: `Monthly leaves credited successfully! ${result.totalCredited} records created for ${result.employeesProcessed} employees.`,
+                data: result
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error crediting monthly leaves',
+                error: result.error
+            });
+        }
+    } catch (error) {
+        console.error('Manual credit error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error crediting monthly leaves',
             error: error.message
         });
     }

@@ -202,6 +202,7 @@ const createTables = async (connection) => {
 
 
 
+// 9. Leave Balances - CORRECTED WITH CYCLE START AND END DATES
 `CREATE TABLE IF NOT EXISTS leave_balances (
     id INT PRIMARY KEY AUTO_INCREMENT,
     employee_id INT NOT NULL,
@@ -213,13 +214,16 @@ const createTables = async (connection) => {
     credited DECIMAL(5,1) DEFAULT 0,
     used DECIMAL(5,1) DEFAULT 0,
     balance DECIMAL(5,1) DEFAULT 0,
+    cycle_start_date DATE,
+    cycle_end_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
     FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
     UNIQUE KEY unique_employee_leave_year_month (employee_id, leave_type_id, year, month),
     INDEX idx_employee_year_month (employee_id, year, month),
-    INDEX idx_leave_type (leave_type_id)
+    INDEX idx_leave_type (leave_type_id),
+    INDEX idx_cycle_start_date (cycle_start_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
 

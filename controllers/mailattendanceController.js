@@ -5,29 +5,35 @@ import { sendAttendanceReport, sendIndividualAttendanceReport } from '../utils/e
 // ✅ Calculate BOTH gross and net time
 // ✅ CORRECT: Remove consecutive duplicate IN or OUT punches, then pair properly
 const calculateBothTimes = (inLogs, outLogs) => {
-    // Step 1: Combine all logs and sort by time
+    // Step 1: Combine all logs with their IDs and sort by ID (chronological order)
     const allLogs = [];
     
     inLogs.forEach(log => {
         allLogs.push({
+            id: log.id,
             time: log.log_time,
             direction: 'in',
-            timestamp: moment(log.log_time, 'HH:mm:ss')
+            timestamp: moment(log.log_time, 'HH:mm:ss'),
+            rawLog: log
         });
     });
     
     outLogs.forEach(log => {
         allLogs.push({
+            id: log.id,
             time: log.log_time,
             direction: 'out',
-            timestamp: moment(log.log_time, 'HH:mm:ss')
+            timestamp: moment(log.log_time, 'HH:mm:ss'),
+            rawLog: log
         });
     });
     
-    // Sort by actual time
-    allLogs.sort((a, b) => a.timestamp.diff(b.timestamp));
+    // Sort by ID (NOT by time) - ID represents true chronological order
+    allLogs.sort((a, b) => a.id - b.id);
     
-    // Step 2: Remove consecutive duplicates (keep only first of each direction)
+    console.log(`      📊 Total logs: ${allLogs.length} (${inLogs.length} IN, ${outLogs.length} OUT)`);
+    
+    // Step 2: Remove consecutive duplicates based on direction
     const cleanedLogs = [];
     let lastDirection = null;
     
@@ -36,46 +42,93 @@ const calculateBothTimes = (inLogs, outLogs) => {
             cleanedLogs.push(log);
             lastDirection = log.direction;
         } else {
-            console.log(`      ⚠️ Skipping duplicate ${log.direction.toUpperCase()} at ${log.timestamp.format('HH:mm')}`);
+            console.log(`      ⚠️ Skipping duplicate ${log.direction.toUpperCase()} at ID ${log.id} (${log.timestamp.format('HH:mm')})`);
         }
     }
     
-    // Step 3: Now separate cleaned IN and OUT logs
-    const cleanedInLogs = cleanedLogs.filter(log => log.direction === 'in');
-    const cleanedOutLogs = cleanedLogs.filter(log => log.direction === 'out');
+    const cleanedInCount = cleanedLogs.filter(l => l.direction === 'in').length;
+    const cleanedOutCount = cleanedLogs.filter(l => l.direction === 'out').length;
+    console.log(`      ✅ After cleaning: ${cleanedInCount} IN, ${cleanedOutCount} OUT`);
     
-    console.log(`      ✅ After cleaning: ${cleanedInLogs.length} IN, ${cleanedOutLogs.length} OUT`);
+    // Step 3: Handle orphan OUT at start (from previous day)
+    let startIndex = 0;
+    if (cleanedLogs.length > 0 && cleanedLogs[0].direction === 'out') {
+        console.log(`      ⚠️ First punch is OUT at ID ${cleanedLogs[0].id} (${cleanedLogs[0].timestamp.format('HH:mm')}) - skipping orphan`);
+        startIndex = 1;
+    }
     
-// Step 4: Calculate NET time by pairing cleaned IN-OUT
-let netMinutes = 0;
-const sessions = [];
-const minLength = Math.min(cleanedInLogs.length, cleanedOutLogs.length);
-
-for (let i = 0; i < minLength; i++) {
-    const inTime = cleanedInLogs[i].timestamp;
-    const outTime = cleanedOutLogs[i].timestamp;
+    // Step 4: Pair IN→OUT sequentially by ID order
+    let netMinutes = 0;
+    const sessions = [];
+    let inLog = null;
     
-    // ✅ Use SECONDS for precision, then convert to minutes
-    const diffSeconds = outTime.diff(inTime, 'seconds');
-    
-    if (diffSeconds > 0) {
-        const diffMinutes = Math.round(diffSeconds / 60); // Round to nearest minute
-        netMinutes += diffMinutes;
+    for (let i = startIndex; i < cleanedLogs.length; i++) {
+        const log = cleanedLogs[i];
         
+        if (log.direction === 'in') {
+            if (inLog) {
+                // Multiple consecutive INs found (shouldn't happen after cleaning, but just in case)
+                console.log(`      ⚠️ Unpaired IN at ID ${inLog.id} - closing session at next IN ID ${log.id}`);
+            }
+            inLog = log;
+        } else if (log.direction === 'out' && inLog) {
+            // Valid IN-OUT pair found
+            const diffSeconds = log.timestamp.diff(inLog.timestamp, 'seconds');
+            
+            if (diffSeconds > 0) {
+                const diffMinutes = Math.round(diffSeconds / 60);
+                netMinutes += diffMinutes;
+                
+                sessions.push({
+                    inId: inLog.id,
+                    outId: log.id,
+                    in: inLog.timestamp.format('HH:mm'),
+                    out: log.timestamp.format('HH:mm'),
+                    duration: `${Math.floor(diffMinutes / 60)}:${(diffMinutes % 60).toString().padStart(2, '0')}`,
+                    minutes: diffMinutes
+                });
+                
+                console.log(`      ✓ Paired: ID ${inLog.id} (${inLog.timestamp.format('HH:mm')}) → ID ${log.id} (${log.timestamp.format('HH:mm')}) = ${diffMinutes} min`);
+            }
+            
+            inLog = null; // Reset for next pair
+        } else if (log.direction === 'out' && !inLog) {
+            // OUT without matching IN (orphan)
+            console.log(`      ⚠️ Orphan OUT at ID ${log.id} (${log.timestamp.format('HH:mm')}) - no matching IN`);
+        }
+    }
+    
+    // Step 5: Handle unpaired IN at end (missing OUT punch)
+    if (inLog) {
+        const endOfDay = moment(inLog.timestamp).set({ hour: 23, minute: 59, second: 59 });
+        const diffSeconds = endOfDay.diff(inLog.timestamp, 'seconds');
+        const diffMinutes = Math.round(diffSeconds / 60);
+        
+        console.log(`      ⚠️ Missing OUT punch for IN at ID ${inLog.id} - assuming worked until ${endOfDay.format('HH:mm')}`);
+        
+        netMinutes += diffMinutes;
         sessions.push({
-            in: inTime.format('HH:mm'),
-            out: outTime.format('HH:mm'),
-            duration: `${Math.floor(diffMinutes / 60)}:${(diffMinutes % 60).toString().padStart(2, '0')}`
+            inId: inLog.id,
+            outId: null,
+            in: inLog.timestamp.format('HH:mm'),
+            out: endOfDay.format('HH:mm'),
+            duration: `${Math.floor(diffMinutes / 60)}:${(diffMinutes % 60).toString().padStart(2, '0')}`,
+            minutes: diffMinutes,
+            incomplete: true
         });
     }
-}
     
-    // Step 5: Calculate GROSS time (first IN to last OUT from cleaned data)
+    // Step 6: Calculate GROSS time (first IN to last OUT)
     let grossMinutes = 0;
-    if (cleanedInLogs.length > 0 && cleanedOutLogs.length > 0) {
-        const firstIn = cleanedInLogs[0].timestamp;
-        const lastOut = cleanedOutLogs[cleanedOutLogs.length - 1].timestamp;
+    if (sessions.length > 0) {
+        const firstIn = moment(sessions[0].in, 'HH:mm');
+        const lastOut = moment(sessions[sessions.length - 1].out, 'HH:mm');
         grossMinutes = lastOut.diff(firstIn, 'minutes');
+        
+        // Handle case where last session crosses midnight
+        if (grossMinutes < 0) {
+            grossMinutes += 24 * 60; // Add 24 hours
+        }
     }
     
     const formatTime = (minutes) => {
@@ -84,15 +137,16 @@ for (let i = 0; i < minLength; i++) {
         return `${hours}:${mins.toString().padStart(2, '0')}`;
     };
     
+    console.log(`      📊 Final: NET ${formatTime(netMinutes)}, GROSS ${formatTime(grossMinutes)}, ${sessions.length} sessions`);
+    
     return {
         netTime: formatTime(netMinutes),
         grossTime: formatTime(grossMinutes),
-        breakTime: formatTime(grossMinutes - netMinutes),
+        breakTime: formatTime(Math.max(0, grossMinutes - netMinutes)),
         netMinutes,
         grossMinutes,
         sessions,
-        cleanedInCount: cleanedInLogs.length,
-        cleanedOutCount: cleanedOutLogs.length
+        totalPairs: sessions.length
     };
 };
 

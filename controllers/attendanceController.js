@@ -758,6 +758,314 @@ async function getEmployeeDetails(employeeCodes) {
 
 
 
+import PDFDocument from 'pdfkit-table';
+import fs from 'fs';
+import path from 'path';
+
+// ✅ Send weekly attendance report as PDF to HR
+export const sendWeeklyPDFReport = async (req, res, weeksAgo = 0) => {
+    try {
+        // Calculate week range
+        const endDate = moment().subtract(weeksAgo, 'weeks').endOf('week');
+        const startDate = moment(endDate).startOf('week');
+        const startDateStr = startDate.format('YYYY-MM-DD');
+        const endDateStr = endDate.format('YYYY-MM-DD');
+
+        console.log(`\n${'='.repeat(70)}`);
+        console.log(`📅 Generating weekly report: ${startDate.format('DD MMM')} - ${endDate.format('DD MMM YYYY')}`);
+        console.log(`${'='.repeat(70)}\n`);
+
+        // Fetch all employees
+        const [employees] = await pool.query(
+            `SELECT 
+                u.employee_id as employee_code,
+                u.email,
+                u.name,
+                e.designation,
+                e.id as emp_id
+             FROM users u
+             INNER JOIN employees e ON u.id = e.user_id
+             WHERE e.is_active = TRUE
+             ORDER BY u.name ASC`
+        );
+
+        if (employees.length === 0) {
+            return res ? res.status(404).json({ success: false, message: 'No employees found' }) : null;
+        }
+
+        console.log(`👥 Processing ${employees.length} employees\n`);
+
+        // Collect attendance data for all employees
+        const reportData = [];
+        
+        for (const employee of employees) {
+            console.log(`Processing: ${employee.name} (${employee.employee_code})`);
+            
+            // Get attendance logs for the week
+            const [logs] = await pool.query(
+                `SELECT log_date, log_time, direction, id
+                 FROM attendance_logs
+                 WHERE employee_code = ?
+                 AND log_date BETWEEN ? AND ?
+                 ORDER BY log_date, id ASC`,
+                [employee.employee_code, startDateStr, endDateStr]
+            );
+
+            // Process each day
+            const weekDays = [];
+            for (let d = moment(startDate); d.isSameOrBefore(endDate); d.add(1, 'days')) {
+                const dateStr = d.format('YYYY-MM-DD');
+                const dayName = d.format('ddd');
+                
+                const dayLogs = logs.filter(log => log.log_date === dateStr);
+                const inLogs = dayLogs.filter(log => log.direction === 'in');
+                const outLogs = dayLogs.filter(log => log.direction === 'out');
+
+                let netTime = '0:00';
+                let grossTime = '0:00';
+                
+                if (inLogs.length > 0 && outLogs.length > 0) {
+                    const timeCalc = calculateBothTimes(inLogs, outLogs);
+                    netTime = timeCalc.netTime;
+                    grossTime = timeCalc.grossTime;
+
+                    // Check for edited hours
+                    const [edited] = await pool.query(
+                        `SELECT new_hours FROM attendance_edited 
+                         WHERE employee_code = ? AND date = ?`,
+                        [employee.employee_code, dateStr]
+                    );
+                    
+                    if (edited.length > 0) {
+                        netTime = edited[0].new_hours.toString() + ' ✏️';
+                    }
+                }
+
+                weekDays.push({
+                    date: d.format('DD MMM'),
+                    day: dayName,
+                    firstIn: inLogs[0] ? moment(inLogs[0].log_time, 'HH:mm:ss').format('HH:mm') : '-',
+                    lastOut: outLogs[outLogs.length - 1] ? moment(outLogs[outLogs.length - 1].log_time, 'HH:mm:ss').format('HH:mm') : '-',
+                    netTime,
+                    grossTime
+                });
+            }
+
+            // Calculate weekly totals
+            let totalNetMinutes = 0;
+            let totalGrossMinutes = 0;
+            
+            weekDays.forEach(day => {
+                if (day.netTime !== '0:00') {
+                    const [h, m] = day.netTime.replace(' ✏️', '').split(':');
+                    totalNetMinutes += parseInt(h) * 60 + parseInt(m);
+                }
+                if (day.grossTime !== '0:00') {
+                    const [h, m] = day.grossTime.split(':');
+                    totalGrossMinutes += parseInt(h) * 60 + parseInt(m);
+                }
+            });
+
+            const formatTime = (minutes) => {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return `${hours}:${mins.toString().padStart(2, '0')}`;
+            };
+
+            reportData.push({
+                employeeCode: employee.employee_code,
+                employeeName: employee.name,
+                designation: employee.designation || 'N/A',
+                email: employee.email,
+                weekDays,
+                totalNet: formatTime(totalNetMinutes),
+                totalGross: formatTime(totalGrossMinutes)
+            });
+        }
+
+        // Generate PDF
+        const pdfPath = await generateWeeklyPDF(reportData, startDateStr, endDateStr);
+
+        // Get HR recipients
+        const [users] = await pool.query(
+            `SELECT u.email FROM users u
+             INNER JOIN employees e ON u.id = e.user_id
+             INNER JOIN roles r ON e.role_id = r.id
+             WHERE r.role_name IN ('hr', 'manager', 'superadmin') 
+             AND u.email IS NOT NULL AND u.email != ''`
+        );
+
+        const recipients = users.map(u => u.email);
+
+        if (recipients.length === 0) {
+            console.log('⚠️ No HR recipients found');
+            return res ? res.status(400).json({ success: false, message: 'No HR recipients' }) : null;
+        }
+
+        // Send email with PDF attachment
+        await sendWeeklyPDFEmail(recipients, pdfPath, startDateStr, endDateStr);
+
+        // Clean up PDF file after sending
+        fs.unlinkSync(pdfPath);
+
+        console.log(`\n✅ Weekly PDF report sent successfully to ${recipients.length} recipients\n`);
+
+        const result = {
+            success: true,
+            message: `Weekly report sent for ${startDate.format('DD MMM')} - ${endDate.format('DD MMM YYYY')}`,
+            period: { start: startDateStr, end: endDateStr },
+            recipients_count: recipients.length,
+            employees_count: reportData.length
+        };
+
+        if (res) res.json(result);
+        return result;
+
+    } catch (error) {
+        console.error('❌ Error generating weekly report:', error);
+        if (res) {
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error generating weekly report', 
+                error: error.message 
+            });
+        }
+        throw error;
+    }
+};
+
+// ✅ Generate PDF using pdfkit-table
+const generateWeeklyPDF = async (reportData, startDate, endDate) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const fileName = `weekly-attendance-${startDate}-to-${endDate}.pdf`;
+            const filePath = path.join(process.cwd(), 'temp', fileName);
+
+            // Create temp directory if it doesn't exist
+            const tempDir = path.join(process.cwd(), 'temp');
+            if (!fs.existsSync(tempDir)) {
+                fs.mkdirSync(tempDir, { recursive: true });
+            }
+
+            // Initialize PDF document
+            const doc = new PDFDocument({ 
+                margin: 30, 
+                size: 'A4',
+                layout: 'landscape' // Better for weekly data
+            });
+
+            doc.pipe(fs.createWriteStream(filePath));
+
+            // Title
+            doc.fontSize(18)
+               .font('Helvetica-Bold')
+               .text('Weekly Attendance Report', { align: 'center' });
+            
+            doc.fontSize(12)
+               .font('Helvetica')
+               .text(`Period: ${moment(startDate).format('DD MMM YYYY')} - ${moment(endDate).format('DD MMM YYYY')}`, 
+                     { align: 'center' })
+               .moveDown();
+
+            // Create table data for each employee
+            (async function createTables() {
+                for (let i = 0; i < reportData.length; i++) {
+                    const emp = reportData[i];
+
+                    // Employee header
+                    doc.fontSize(11)
+                       .font('Helvetica-Bold')
+                       .text(`${emp.employeeName} (${emp.employeeCode}) - ${emp.designation}`, {
+                           continued: false
+                       })
+                       .moveDown(0.5);
+
+                    // Prepare table rows
+                    const tableRows = emp.weekDays.map(day => [
+                        day.date,
+                        day.day,
+                        day.firstIn,
+                        day.lastOut,
+                        day.netTime,
+                        day.grossTime
+                    ]);
+
+                    // Add total row
+                    tableRows.push([
+                        'TOTAL',
+                        '',
+                        '',
+                        '',
+                        emp.totalNet,
+                        emp.totalGross
+                    ]);
+
+                    const table = {
+                        headers: [
+                            { label: 'Date', property: 'date', width: 70 },
+                            { label: 'Day', property: 'day', width: 50 },
+                            { label: 'First In', property: 'firstIn', width: 70 },
+                            { label: 'Last Out', property: 'lastOut', width: 70 },
+                            { label: 'Net Hours', property: 'netTime', width: 80 },
+                            { label: 'Gross Hours', property: 'grossTime', width: 80 }
+                        ],
+                        rows: tableRows
+                    };
+
+                    await doc.table(table, {
+                        width: 520,
+                        prepareHeader: () => doc.font('Helvetica-Bold').fontSize(9),
+                        prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                            doc.font('Helvetica').fontSize(8);
+                            // Highlight total row
+                            if (indexRow === tableRows.length - 1) {
+                                doc.font('Helvetica-Bold').fontSize(9);
+                                doc.addBackground(rectRow, '#E8F4F8', 0.5);
+                            }
+                            // Alternate row colors
+                            if (indexRow < tableRows.length - 1 && indexRow % 2 === 0) {
+                                doc.addBackground(rectRow, '#F5F5F5', 0.3);
+                            }
+                        }
+                    });
+
+                    doc.moveDown(1);
+
+                    // Add page break if needed (except for last employee)
+                    if (i < reportData.length - 1 && doc.y > 500) {
+                        doc.addPage();
+                    }
+                }
+
+                // Footer
+                doc.fontSize(8)
+                   .font('Helvetica')
+                   .text(`Generated on: ${moment().format('DD MMM YYYY, HH:mm')}`, {
+                       align: 'center'
+                   });
+
+                doc.end();
+
+                doc.on('finish', () => {
+                    console.log(`✅ PDF generated: ${fileName}`);
+                    resolve(filePath);
+                });
+
+                doc.on('error', (err) => {
+                    reject(err);
+                });
+            })();
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+
+
+
+
 
 
 

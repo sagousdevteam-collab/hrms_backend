@@ -613,145 +613,116 @@ const getLeaveCounterPeriod = (date = moment()) => {
 
 
 export const creditMonthlyLeavesForAll = async () => {
-    console.log('\n========================================');
-    console.log('🚀 AUTO-CREDIT MONTHLY LEAVES');
-    console.log('========================================');
-    
-    const startTime = Date.now();
-    const today = moment();
-
-    // ❌ REMOVE THIS CHECK
-    // if (today.date() !== 25) {
-    //     console.log(`⏭️  Not 25th of month. Current date: ${today.format('DD')}`);
-    //     return { success: false, message: 'Not the 25th' };
-    // }
-
-    console.log(`📅 Crediting leaves for: ${today.format('DD MMMM YYYY')}`);
-    console.log(`⏰ Time: ${today.format('YYYY-MM-DD HH:mm:ss')}`);
-
     const connection = await pool.getConnection();
+    
     try {
         await connection.beginTransaction();
-
+        
+        // Get all active employees
         const [employees] = await connection.query(
-            `SELECT e.id, u.name, u.employee_id
+            `SELECT DISTINCT e.id, u.employee_id 
              FROM employees e
              JOIN users u ON e.user_id = u.id
              WHERE e.is_active = TRUE`
         );
-
-        const [leaveTypes] = await connection.query(
-            `SELECT id, leave_code, leave_name, max_days_per_year, is_carry_forward 
-             FROM leave_types WHERE is_active = TRUE`
-        );
-
-        console.log(`\n👥 Active Employees: ${employees.length}`);
-        console.log(`📋 Leave Types: ${leaveTypes.length}`);
-        console.log('\nProcessing...\n');
-
-        const cycle_start = today.clone().date(25).format('YYYY-MM-DD');
-        const cycle_end = today.clone().add(1, 'month').date(24).format('YYYY-MM-DD');
         
-        const currentYear = today.year();
-        const currentMonth = today.month() + 1;
-
+        // Get all active leave types
+        const [leaveTypes] = await connection.query(
+            `SELECT id, leave_code, max_days_per_year 
+             FROM leave_types 
+             WHERE is_active = TRUE`
+        );
+        
+        if (employees.length === 0 || leaveTypes.length === 0) {
+            return { 
+                success: false, 
+                error: 'No active employees or leave types found' 
+            };
+        }
+        
         let totalCredited = 0;
-        let employeesProcessed = 0;
-
-        for (const emp of employees) {
-            let empCredits = 0;
-
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+        
+        // Calculate cycle dates (25th of current month to 24th of next month)
+        const cycleStartDate = new Date(year, currentDate.getMonth(), 25);
+        const cycleEndDate = new Date(year, currentDate.getMonth() + 1, 24);
+        
+        // Format dates as YYYY-MM-DD
+        const formatDate = (date) => date.toISOString().split('T')[0];
+        const startDateStr = formatDate(cycleStartDate);
+        const endDateStr = formatDate(cycleEndDate);
+        
+        for (const employee of employees) {
             for (const leaveType of leaveTypes) {
-                const monthlyCredit = parseFloat((leaveType.max_days_per_year / 12).toFixed(1));
-
-                const previousCycleEnd = moment(cycle_start).subtract(1, 'day').format('YYYY-MM-DD');
-                
-                const [prevBalance] = await connection.query(
-                    `SELECT balance FROM leave_balances 
-                     WHERE employee_id = ? 
-                     AND leave_type_id = ? 
-                     AND cycle_end_date = ?`,
-                    [emp.id, leaveType.id, previousCycleEnd]
-                );
-
-                const carryForward = (prevBalance.length > 0 && leaveType.is_carry_forward) 
-                    ? Math.max(0, prevBalance[0].balance)
-                    : 0;
-
-                const [existingBalance] = await connection.query(
+                // Check if balance already exists using year, month (matching unique constraint)
+                const [existing] = await connection.query(
                     `SELECT id FROM leave_balances 
                      WHERE employee_id = ? 
                      AND leave_type_id = ? 
-                     AND cycle_start_date = ?`,
-                    [emp.id, leaveType.id, cycle_start]
+                     AND year = ?
+                     AND month = ?`,
+                    [employee.id, leaveType.id, year, month]
                 );
-
-                if (existingBalance.length === 0) {
+                
+                if (existing.length === 0) {
+                    // Insert new leave balance with cycle dates
                     await connection.query(
                         `INSERT INTO leave_balances 
-                         (employee_id, leave_type_id, year, month, cycle_start_date, cycle_end_date, 
-                          opening_balance, carried_forward, credited, used, balance)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        (employee_id, leave_type_id, year, month, 
+                         opening_balance, carried_forward, credited, used, balance,
+                         cycle_start_date, cycle_end_date, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
                         [
-                            emp.id,
+                            employee.id,
                             leaveType.id,
-                            currentYear,
-                            currentMonth,
-                            cycle_start,
-                            cycle_end,
+                            year,
+                            month,
                             0,
-                            carryForward,
-                            monthlyCredit,
                             0,
-                            carryForward + monthlyCredit
+                            leaveType.max_days_per_year / 12,
+                            0,
+                            leaveType.max_days_per_year / 12,
+                            startDateStr,
+                            endDateStr
                         ]
                     );
-
-                    empCredits++;
                     totalCredited++;
+                } else {
+                    // Update cycle dates if they exist but dates are different
+                    await connection.query(
+                        `UPDATE leave_balances 
+                         SET cycle_start_date = ?, cycle_end_date = ?, updated_at = NOW()
+                         WHERE employee_id = ? 
+                         AND leave_type_id = ? 
+                         AND year = ?
+                         AND month = ?`,
+                        [startDateStr, endDateStr, employee.id, leaveType.id, year, month]
+                    );
                 }
             }
-
-            if (empCredits > 0) {
-                employeesProcessed++;
-                console.log(`✅ ${emp.name} (${emp.employee_id}) - ${empCredits} leave types credited`);
-            }
         }
-
+        
         await connection.commit();
-
-        const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-
-        console.log('\n========================================');
-        console.log('✅ AUTO-CREDIT COMPLETED');
-        console.log('========================================');
-        console.log(`📊 Cycle: ${cycle_start} to ${cycle_end}`);
-        console.log(`📋 Total Credits: ${totalCredited}`);
-        console.log(`👥 Employees: ${employeesProcessed}/${employees.length}`);
-        console.log(`⏱️  Duration: ${duration}s`);
-        console.log('========================================\n');
-
+        
         return {
             success: true,
             totalCredited,
-            employeesProcessed,
-            cycleStart: cycle_start,
-            cycleEnd: cycle_end,
-            duration
+            employeesProcessed: employees.length,
+            leaveTypesProcessed: leaveTypes.length,
+            cycleStartDate: startDateStr,
+            cycleEndDate: endDateStr
         };
-
+        
     } catch (error) {
         await connection.rollback();
-        console.error('\n❌ ERROR IN AUTO-CREDIT:', error);
+        console.error('Error in creditMonthlyLeavesForAll:', error);
         return { success: false, error: error.message };
     } finally {
         connection.release();
     }
 };
-
-
-
-
 /**
  * Initialize cron job to run on 25th of every month at 00:01 AM
  */

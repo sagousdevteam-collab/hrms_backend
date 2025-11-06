@@ -589,6 +589,7 @@ const startServer = async () => {
                 console.log('✅ Leave balance cron initialized\n');
                 
                 
+                
                 console.log('2️⃣ Starting Attendance Sync Cron...');
                 scheduleAttendanceSync();
                 console.log('✅ Attendance sync cron initialized\n');

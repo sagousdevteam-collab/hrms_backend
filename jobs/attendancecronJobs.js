@@ -1,5 +1,7 @@
 // jobs/attendancecronJobs.js
 import cron from 'node-cron';
+
+
 import { syncAttendanceData } from '../controllers/syncController.js';
 const createMockReqRes = () => {
     const req = {};
