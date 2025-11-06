@@ -10,17 +10,8 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: parseInt(process.env.DB_PORT) || 3306,
     waitForConnections: true,
-<<<<<<< HEAD
     connectionLimit: 5,
     queueLimit: 0
-=======
-    connectionLimit: 3,              // Reduced from 5 (safer for Dev plan)
-    queueLimit: 20,                  // Queue requests instead of rejecting
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
-    connectTimeout: 30000,           // Increased timeout (fixes ETIMEDOUT)
-    idleTimeout: 10000,              // Close idle connections faster
->>>>>>> 053b842 (Your message)
 });
 
 // Handle pool errors

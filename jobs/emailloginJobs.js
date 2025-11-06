@@ -116,11 +116,9 @@ export const initializeScheduledJobs = () => {
         console.log(`${'='.repeat(60)}\n`);
 
         // Schedule: Send individual reports at 6:00 PM IST every day (Monday to Friday only)
-<<<<<<< HEAD
+
         cron.schedule('44 13 * * 1-5', executeIndividualReports, {
-=======
-        cron.schedule('38 15 * * 1-5', executeIndividualReports, {
->>>>>>> 053b842 (Your message)
+    
             timezone: "Asia/Kolkata",
             runOnInit: false  // Don't run immediately on initialization
         });
