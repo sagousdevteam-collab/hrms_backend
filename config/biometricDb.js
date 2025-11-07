@@ -18,13 +18,6 @@ const biometricPool = mysql.createPool({
     acquireTimeout: 60000  // 60 seconds
 });
 
-biometricPool.getConnection()
-    .then(connection => {
-        console.log('✅ Connected to Biometric Database');
-        connection.release();
-    })
-    .catch(err => {
-        console.error('❌ Biometric Database connection failed:', err.message);
-    });
+
 
 export default biometricPool;
