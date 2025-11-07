@@ -71,7 +71,6 @@ export const getFullEmployeeAttendanceDetails = async (req, res) => {
                 employees.mobile_number,
                 employees.role_id,
                 employees.department_id,
-                employees.reporting_manager_id,
                 employees.date_of_birth,
                 employees.date_of_joining,
                 employees.designation,
