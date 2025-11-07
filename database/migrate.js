@@ -152,184 +152,60 @@ const createTables = async (connection) => {
             INDEX idx_leave_code (leave_code)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-        // // 9. Leave Balances - FIXED WITH MONTH COLUMN
-        // `CREATE TABLE IF NOT EXISTS leave_balances (
-        //     id INT PRIMARY KEY AUTO_INCREMENT,
-        //     employee_id INT NOT NULL,
-        //     leave_type_id INT NOT NULL,
-        //     year INT NOT NULL,
-        //     month INT NOT NULL,
-        //     opening_balance DECIMAL(5,1) DEFAULT 0,
-        //     carried_forward DECIMAL(5,1) DEFAULT 0,
-        //     credited DECIMAL(5,1) DEFAULT 0,
-        //     used DECIMAL(5,1) DEFAULT 0,
-        //     balance DECIMAL(5,1) DEFAULT 0,
-        //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        //     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-        //     FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-        //     UNIQUE KEY unique_employee_leave_year_month (employee_id, leave_type_id, year, month),
-        //     INDEX idx_employee_year_month (employee_id, year, month),
-        //     INDEX idx_leave_type (leave_type_id)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-
-
-
-//         // 9. Leave Balances - FIXED WITH OPTIONAL MONTH COLUMN
-// `CREATE TABLE IF NOT EXISTS leave_balances (
-//     id INT PRIMARY KEY AUTO_INCREMENT,
-//     employee_id INT NOT NULL,
-//     leave_type_id INT NOT NULL,
-//     year INT NOT NULL,
-//     month INT DEFAULT NULL,
-//     opening_balance DECIMAL(5,1) DEFAULT 0,
-//     carried_forward DECIMAL(5,1) DEFAULT 0,
-//     credited DECIMAL(5,1) DEFAULT 0,
-//     used DECIMAL(5,1) DEFAULT 0,
-//     balance DECIMAL(5,1) DEFAULT 0,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-//     FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-//     UNIQUE KEY unique_employee_leave_year_month (employee_id, leave_type_id, year, month),
-//     INDEX idx_employee_year_month (employee_id, year, month),
-//     INDEX idx_leave_type (leave_type_id)
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+        // 9. Leave Balances - FIXED WITH MONTH COLUMN
+        `CREATE TABLE IF NOT EXISTS leave_balances (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            employee_id INT NOT NULL,
+            leave_type_id INT NOT NULL,
+            year INT NOT NULL,
+            month INT NOT NULL,
+            opening_balance DECIMAL(5,1) DEFAULT 0,
+            carried_forward DECIMAL(5,1) DEFAULT 0,
+            credited DECIMAL(5,1) DEFAULT 0,
+            used DECIMAL(5,1) DEFAULT 0,
+            balance DECIMAL(5,1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+            FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
+            UNIQUE KEY unique_employee_leave_year_month (employee_id, leave_type_id, year, month),
+            INDEX idx_employee_year_month (employee_id, year, month),
+            INDEX idx_leave_type (leave_type_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
 
 
 
 
+        `CREATE TABLE IF NOT EXISTS leave_applications (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            employee_id INT NOT NULL,
+            leave_type_id INT NOT NULL,
+            from_date DATE NOT NULL,
+            to_date DATE NOT NULL,
+            number_of_days DECIMAL(5,1) NOT NULL,
+            is_half_day BOOLEAN DEFAULT FALSE,
+            reason TEXT,
+            status ENUM('pending', 'approved', 'rejected', 'cancelled') DEFAULT 'pending',
+            approved_by INT,
+            approved_at TIMESTAMP NULL,
+            approver_comments TEXT,
+            rejected_by INT,
+            rejected_at TIMESTAMP NULL,
+            rejection_reason TEXT,
+            applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+            FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
+            FOREIGN KEY (approved_by) REFERENCES employees(id) ON DELETE SET NULL,
+            FOREIGN KEY (rejected_by) REFERENCES employees(id) ON DELETE SET NULL,
+            INDEX idx_employee_id (employee_id),
+            INDEX idx_status (status),
+            INDEX idx_dates (from_date, to_date),
+            INDEX idx_leave_type (leave_type_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-// 9. Leave Balances - CORRECTED WITH CYCLE START AND END DATES
-`CREATE TABLE IF NOT EXISTS leave_balances (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    employee_id INT NOT NULL,
-    leave_type_id INT NOT NULL,
-    year INT NOT NULL,
-    month INT DEFAULT NULL,
-    opening_balance DECIMAL(5,1) DEFAULT 0,
-    carried_forward DECIMAL(5,1) DEFAULT 0,
-    credited DECIMAL(5,1) DEFAULT 0,
-    used DECIMAL(5,1) DEFAULT 0,
-    balance DECIMAL(5,1) DEFAULT 0,
-    cycle_start_date DATE,
-    cycle_end_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-    UNIQUE KEY unique_employee_leave_year_month (employee_id, leave_type_id, year, month),
-    INDEX idx_employee_year_month (employee_id, year, month),
-    INDEX idx_leave_type (leave_type_id),
-    INDEX idx_cycle_start_date (cycle_start_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-
-
-        // 10. Leave Applications - FIXED WITH is_half_day AND cancelled STATUS
-        // `CREATE TABLE IF NOT EXISTS leave_applications (
-        //     id INT PRIMARY KEY AUTO_INCREMENT,
-        //     employee_id INT NOT NULL,
-        //     leave_type_id INT NOT NULL,
-        //     from_date DATE NOT NULL,
-        //     to_date DATE NOT NULL,
-        //     number_of_days DECIMAL(5,1) NOT NULL,
-        //     is_half_day BOOLEAN DEFAULT FALSE,
-        //     reason TEXT,
-        //     status ENUM('pending', 'approved', 'rejected', 'cancelled') DEFAULT 'pending',
-        //     approved_by INT,
-        //     approved_at TIMESTAMP NULL,
-        //     approver_comments TEXT,
-        //     rejected_by INT,
-        //     rejected_at TIMESTAMP NULL,
-        //     rejection_reason TEXT,
-        //     applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        //     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        //     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-        //     FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-        //     FOREIGN KEY (approved_by) REFERENCES employees(id) ON DELETE SET NULL,
-        //     FOREIGN KEY (rejected_by) REFERENCES employees(id) ON DELETE SET NULL,
-        //     INDEX idx_employee_id (employee_id),
-        //     INDEX idx_status (status),
-        //     INDEX idx_dates (from_date, to_date),
-        //     INDEX idx_leave_type (leave_type_id)
-        // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         `CREATE TABLE IF NOT EXISTS leave_applications (
-//     id INT PRIMARY KEY AUTO_INCREMENT,
-//     employee_id INT NOT NULL,
-//     leave_type_id INT NOT NULL,
-//     from_date DATE NOT NULL,
-//     to_date DATE NOT NULL,
-//     number_of_days DECIMAL(5,1) NOT NULL,
-//     is_half_day BOOLEAN DEFAULT FALSE,
-//     od_start_time TIME NULL,
-//     od_end_time TIME NULL,
-//     od_hours DECIMAL(5,2) NULL,
-//     reason TEXT,
-//     status ENUM('pending', 'approved', 'rejected', 'cancelled') DEFAULT 'pending',
-//     approved_by INT,
-//     approved_at TIMESTAMP NULL,
-//     approver_comments TEXT,
-//     rejected_by INT,
-//     rejected_at TIMESTAMP NULL,
-//     rejection_reason TEXT,
-//     applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-//     FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-//     FOREIGN KEY (approved_by) REFERENCES employees(id) ON DELETE SET NULL,
-//     FOREIGN KEY (rejected_by) REFERENCES employees(id) ON DELETE SET NULL,
-//     INDEX idx_employee_id (employee_id),
-//     INDEX idx_status (status),
-//     INDEX idx_dates (from_date, to_date),
-//     INDEX idx_leave_type (leave_type_id),
-//     INDEX idx_od_date (employee_id, from_date, od_start_time)
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-
-// 10. Leave Applications - WITH ON HOLD STATUS
-`CREATE TABLE IF NOT EXISTS leave_applications (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    employee_id INT NOT NULL,
-    leave_type_id INT NOT NULL,
-    from_date DATE NOT NULL,
-    to_date DATE NOT NULL,
-    number_of_days DECIMAL(5,1) NOT NULL,
-    is_half_day BOOLEAN DEFAULT FALSE,
-    od_start_time TIME NULL,
-    od_end_time TIME NULL,
-    od_hours DECIMAL(5,2) NULL,
-    reason TEXT,
-    status ENUM('pending', 'approved', 'rejected', 'cancelled', 'on_hold') DEFAULT 'pending',
-    approved_by INT,
-    approved_at TIMESTAMP NULL,
-    approver_comments TEXT,
-    rejected_by INT,
-    rejected_at TIMESTAMP NULL,
-    rejection_reason TEXT,
-    hold_by INT,
-    hold_at TIMESTAMP NULL,
-    hold_reason TEXT,
-    applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-    FOREIGN KEY (approved_by) REFERENCES employees(id) ON DELETE SET NULL,
-    FOREIGN KEY (rejected_by) REFERENCES employees(id) ON DELETE SET NULL,
-    FOREIGN KEY (hold_by) REFERENCES employees(id) ON DELETE SET NULL,
-    INDEX idx_employee_id (employee_id),
-    INDEX idx_status (status),
-    INDEX idx_dates (from_date, to_date),
-    INDEX idx_leave_type (leave_type_id),
-    INDEX idx_od_date (employee_id, from_date, od_start_time),
-    INDEX idx_hold_by (hold_by)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
 
         // 11. Public Holidays
@@ -346,28 +222,6 @@ const createTables = async (connection) => {
             INDEX idx_date (holiday_date)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-        // 12. Attendance Logs (Biometric Punch Data)
-// `CREATE TABLE IF NOT EXISTS attendance_logs (
-//     id INT PRIMARY KEY AUTO_INCREMENT,
-//     employee_code VARCHAR(20) NOT NULL,
-//     log_date_time DATETIME NOT NULL,
-//     log_date DATE NOT NULL,
-//     log_time TIME NOT NULL,
-//     direction ENUM('in', 'out') NOT NULL,
-//     login_type TINYINT DEFAULT 1,
-//     download_date_time DATETIME NOT NULL,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-//     INDEX idx_employee_code (employee_code),
-//     INDEX idx_log_date (log_date),
-//     INDEX idx_log_date_time (log_date_time),
-//     INDEX idx_direction (direction),
-//     INDEX idx_employee_date (employee_code, log_date)
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-
-
-// 12. Attendance Logs (Biometric Punch Data) - UPDATED WITH ID INDEX
 `CREATE TABLE IF NOT EXISTS attendance_logs (
     id INT PRIMARY KEY AUTO_INCREMENT,
     employee_code VARCHAR(20) NOT NULL,
@@ -379,13 +233,14 @@ const createTables = async (connection) => {
     download_date_time DATETIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_id (id),
     INDEX idx_employee_code (employee_code),
     INDEX idx_log_date (log_date),
     INDEX idx_log_date_time (log_date_time),
     INDEX idx_direction (direction),
     INDEX idx_employee_date (employee_code, log_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
+
 
 
 // 13. Attendance Edited (Audit Trail for Manual Edits)
@@ -422,183 +277,6 @@ const createTables = async (connection) => {
 };
 
 
-// const createTables = async (connection) => {
-//     console.log('📝 Creating tables...');
-    
-//     const tables = [
-//         // 1. Users
-//         `CREATE TABLE IF NOT EXISTS users (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             employee_id VARCHAR(20) UNIQUE NOT NULL,
-//             name VARCHAR(100) NOT NULL,
-//             email VARCHAR(100) UNIQUE NOT NULL,
-//             password VARCHAR(255) NOT NULL,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//             INDEX idx_email (email),
-//             INDEX idx_employee_id (employee_id)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 2. Roles
-//         `CREATE TABLE IF NOT EXISTS roles (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             role_name VARCHAR(50) UNIQUE NOT NULL,
-//             description VARCHAR(255),
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             INDEX idx_role_name (role_name)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 3. Modules
-//         `CREATE TABLE IF NOT EXISTS modules (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             module_name VARCHAR(50) UNIQUE NOT NULL,
-//             description VARCHAR(255),
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             INDEX idx_module_name (module_name)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 4. Permissions
-//         `CREATE TABLE IF NOT EXISTS permissions (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             permission_name VARCHAR(50) UNIQUE NOT NULL,
-//             description VARCHAR(255),
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             INDEX idx_permission_name (permission_name)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 5. Departments
-//         `CREATE TABLE IF NOT EXISTS departments (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             department_name VARCHAR(100) NOT NULL,
-//             description VARCHAR(255),
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             INDEX idx_department_name (department_name)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 6. Role Permissions
-//         `CREATE TABLE IF NOT EXISTS role_permissions (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             role_id INT NOT NULL,
-//             module_id INT NOT NULL,
-//             permission_id INT NOT NULL,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-//             FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE,
-//             FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
-//             UNIQUE KEY unique_role_module_permission (role_id, module_id, permission_id),
-//             INDEX idx_role_id (role_id),
-//             INDEX idx_module_id (module_id)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 7. Employees
-//         `CREATE TABLE IF NOT EXISTS employees (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             user_id INT UNIQUE NOT NULL,
-//             mobile_number VARCHAR(15),
-//             role_id INT NOT NULL,
-//             department_id INT,
-//             reporting_manager_id INT,
-//             date_of_birth DATE,
-//             date_of_joining DATE,
-//             designation VARCHAR(100),
-//             is_active BOOLEAN DEFAULT TRUE,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-//             FOREIGN KEY (role_id) REFERENCES roles(id),
-//             FOREIGN KEY (department_id) REFERENCES departments(id),
-//             FOREIGN KEY (reporting_manager_id) REFERENCES employees(id) ON DELETE SET NULL,
-//             INDEX idx_user_id (user_id),
-//             INDEX idx_role_id (role_id),
-//             INDEX idx_reporting_manager (reporting_manager_id)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 8. Leave Types
-//         `CREATE TABLE IF NOT EXISTS leave_types (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             leave_code VARCHAR(10) UNIQUE NOT NULL,
-//             leave_name VARCHAR(50) NOT NULL,
-//             description VARCHAR(255),
-//             is_carry_forward BOOLEAN DEFAULT FALSE,
-//             max_days_per_year INT,
-//             is_active BOOLEAN DEFAULT TRUE,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             INDEX idx_leave_code (leave_code)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 9. Leave Balances
-//         `CREATE TABLE IF NOT EXISTS leave_balances (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             employee_id INT NOT NULL,
-//             leave_type_id INT NOT NULL,
-//             year INT NOT NULL,
-//             opening_balance DECIMAL(5,1) DEFAULT 0,
-//             credited DECIMAL(5,1) DEFAULT 0,
-//             used DECIMAL(5,1) DEFAULT 0,
-//             balance DECIMAL(5,1) DEFAULT 0,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//             FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-//             FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-//             UNIQUE KEY unique_employee_leave_year (employee_id, leave_type_id, year),
-//             INDEX idx_employee_year (employee_id, year)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 10. Leave Applications
-//         `CREATE TABLE IF NOT EXISTS leave_applications (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             employee_id INT NOT NULL,
-//             leave_type_id INT NOT NULL,
-//             from_date DATE NOT NULL,
-//             to_date DATE NOT NULL,
-//             number_of_days DECIMAL(5,1) NOT NULL,
-//             reason TEXT,
-//             status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-//             approved_by INT,
-//             approved_at TIMESTAMP NULL,
-//             approver_comments TEXT,
-//             rejected_by INT,
-//             rejected_at TIMESTAMP NULL,
-//             rejection_reason TEXT,
-//             applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//             FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-//             FOREIGN KEY (leave_type_id) REFERENCES leave_types(id),
-//             FOREIGN KEY (approved_by) REFERENCES employees(id) ON DELETE SET NULL,
-//             FOREIGN KEY (rejected_by) REFERENCES employees(id) ON DELETE SET NULL,
-//             INDEX idx_employee_id (employee_id),
-//             INDEX idx_status (status),
-//             INDEX idx_dates (from_date, to_date)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-//         // 11. Public Holidays
-//         `CREATE TABLE IF NOT EXISTS public_holidays (
-//             id INT PRIMARY KEY AUTO_INCREMENT,
-//             holiday_name VARCHAR(100) NOT NULL,
-//             holiday_date DATE NOT NULL,
-//             description VARCHAR(255),
-//             is_mandatory BOOLEAN DEFAULT TRUE,
-//             year INT NOT NULL,
-//             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//             UNIQUE KEY unique_holiday_date (holiday_date),
-//             INDEX idx_year (year),
-//             INDEX idx_date (holiday_date)
-//         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
-//     ];
-
-//     for (let i = 0; i < tables.length; i++) {
-//         try {
-//             await connection.query(tables[i]);
-//             console.log(`  ✓ Table ${i + 1}/${tables.length} created`);
-//         } catch (error) {
-//             if (!error.message.includes('already exists')) {
-//                 console.error(`  ✗ Error creating table ${i + 1}:`, error.message);
-//             }
-//         }
-//     }
-// };
-
 const insertSeeds = async (connection) => {
     console.log('🌱 Inserting seed data...');
     
@@ -621,7 +299,6 @@ const insertSeeds = async (connection) => {
             ('employees', 'Manage Employees'),
             ('leave_types', 'Manage Leave Types'),
             ('leaves', 'Manage Leaves'),
-            ('holidays', 'Manage Public Holidays'),
             ('attendance', 'Manage Attendance'),
             ('calendar', 'View Calendar'),
             ('departments', 'Manage Departments')
@@ -635,7 +312,6 @@ const insertSeeds = async (connection) => {
             ('view', 'View permission'),
             ('edit', 'Edit permission'),
             ('delete', 'Delete permission'),
-            ('approve', 'Approve permission')
         `);
         console.log('  ✓ Permissions inserted');
 
@@ -652,10 +328,8 @@ const insertSeeds = async (connection) => {
         // Insert Leave Types
         await connection.query(`
             INSERT IGNORE INTO leave_types (leave_code, leave_name, description, is_carry_forward, max_days_per_year) VALUES
-            ('CL', 'Casual Leave', 'Casual Leave - Resets every year', FALSE, 12),
             ('EL', 'Earned Leave', 'Earned Leave - Can be carried forward', TRUE, 12),
             ('PL', 'Privilege Leave', 'Privilege Leave', TRUE, 15),
-            ('SL', 'Sick Leave', 'Sick Leave', FALSE, 10),
             ('OD', 'On Duty', 'On Duty', FALSE, NULL),
             ('LOP', 'Loss of Pay', 'Leave without pay', FALSE, NULL),
             ('WFH', 'Work From Home', 'Work from home', FALSE, 24)
@@ -666,7 +340,6 @@ const insertSeeds = async (connection) => {
         await connection.query(`
             INSERT IGNORE INTO role_permissions (role_id, module_id, permission_id) VALUES
             (2, 2, 2), (2, 2, 1), (2, 2, 3), (2, 2, 4),
-            (2, 4, 2), (2, 4, 5), (2, 7, 2),
             (2, 5, 2), (2, 5, 1), (2, 5, 3), (2, 5, 4),
             (2, 3, 2), (2, 3, 1), (2, 3, 3)
         `);
